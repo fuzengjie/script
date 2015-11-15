@@ -197,7 +197,7 @@ software
 service
 ssh
 ipv6_disable
-ulimit
+ulimit_config
 }
 if [[ $LOGNAME != root ]]; then
 	echo -e "\033[;31m you are not administrator !!! \033[0m"
