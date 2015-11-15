@@ -165,6 +165,9 @@ EOF
 
 #下载必备常用软件
 function software() {
+			rm -fr /etc/yum.repos.d/*
+            wget http://sa.beyond.com/script/local.repo -P /etc/yum.repos.d/
+            yum clean all
 			yum install lrzsz wget elinks htop sysstat nc  -y &>/dev/null
 			[ $? -eq 0 ] && action "lrzsz wget elinks  htop sysstat nc install"  /bin/true|| action "lrzsz wget elinks  htop sysstat nc install" /bin/false
 }
