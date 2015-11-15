@@ -148,7 +148,7 @@ function ssh () {
  	echo "fuzj123" | passwd --stdin fuzj &> /dev/null
  	/etc/init.d/sshd restart &> /dev/null && action  "ssh is config ok ,please used fuzj login " /bin/true
  
- cat >> /etc/profile/history.sh <<EOF
+ cat >> /etc/profile.d/history.sh <<EOF
 	export LC_ALL=C
 	TMOUT=3600
 	HISTFILESIZE=2000
