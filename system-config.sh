@@ -155,8 +155,7 @@ function ssh () {
 	HISTSIZE=2000
 	HISTTIMEFORMAT="%Y%m%d-%H%M%S:"
 	export HISTTIMEFORMAT
-	export PROMPT_COMMAND='{ command=$(history 1 | { read x y; echo $y; });
-	logger -p local1.notice -t bash -i "user=$USER,ppid=$PPID,from=$SSH_CLIENT,pwd=$PWD,command:$command"; }'
+	export PROMPT_COMMAND='{ command=\$(history 1 | { read x y; echo \$y; });logger -p local1.notice -t bash -i "user=\$USER,ppid=\$PPID,from=\$SSH_CLIENT,pwd=\$PWD,command:\$command"; }'
 EOF
 	echo "sshd:192.168.254.*:allow" >> /etc/hosts.allow
 	echo "sshd:ALL:deny" >>/etc/hosts.deny
