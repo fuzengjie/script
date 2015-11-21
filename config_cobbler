@@ -2,6 +2,7 @@
 #Create by fuzj
 #Date 2015-11-22
 
+
 if [ $LOGNAME != root ]; then
     echo "Please use the root account operation."
     exit 1
