@@ -62,8 +62,8 @@ esac
 Color
 case $1 in
 select)
-	Print_Yelow "please input select Content : " 		; read -p  "" values1
-	Print_Yelow "please input select Attribute : "      ; read -p  "" values3
+	Print_Yelow "please input select Content : " 		; read -p  "" values3
+	Print_Yelow "please input select Attribute : "      ; read -p  "" values1
 	Print_Yelow "please input Display Option : "		; read -p  "" values2
 	[ -z $values2 ] && values2="*" 
 	Config_DB Select
