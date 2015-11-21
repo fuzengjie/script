@@ -160,6 +160,13 @@ EOF
 	echo "sshd:192.168.254.*:allow" >> /etc/hosts.allow
 	echo "sshd:ALL:deny" >>/etc/hosts.deny
 	source  /etc/profile
+cat >> /etc/bashrc <<EOF
+if [ \$USER == "root" ]; then
+        export PS1='[\e[31;24m\u\]\e[33;49m\]@\H \e[37;49m\w]\$'
+else
+        export PS1='[\[\e[32;49m\]\u\e[33;49m\]@\H \e[37;49m\w]\$'
+fi
+EOF
 }
 
 #下载必备常用软件
