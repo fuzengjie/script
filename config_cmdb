@@ -32,13 +32,13 @@ Config_DB () {
 	}
 	
 	Update () {
-	$Con -e "use sadb; update host set ${values}='${values1}' where Hostname='$Hostname'"
+	$Con -e "use sadb; update host set ${values}='${values1}' where $values3='$values4'"
 	}
 	Delete () {
 	$Con -e "use sadb; delete host where ${values}='${values1}'"
 	}
 	Select () {
-	$Con  -e "use sadb; select * from host where ${values}='${values1}'"
+	$Con  -e "use sadb; select $values3 from host where ${values}='${values1}'"
 	}
 
 
@@ -63,7 +63,8 @@ Color
 case $1 in
 select)
 	Print_Yelow "please input select Content : " ; read -p  "" values1
-	Print_Yelow "please input  Attribute : "     ; read -p  ""  values
+	Print_Yelow "please input  Attribute : "     ; read -p  "" values
+	Print_Yelow "please input Option : "		 ; read -p  "" values3  
 	Config_DB Select
 	;;
 insert)
@@ -75,9 +76,10 @@ insert)
 	Config_DB Insert 
 	;;
 update)
-	Print_Yelow "please input will update hostname:  " ;read -p "" Hostname
-	Print_Yelow "please input will update Content:  "  ;read -p "" values1
-	Print_Yelow "please input will update Attribute:  ";read -p "" values
+	Print_Yelow "please input will update Target :  "   	;read -p "" values3
+	Print_Yelow "please input will update Target_detail: "  ;read -p "" values4
+	Print_Yelow "please input will update Content:  "  		;read -p "" values1
+	Print_Yelow "please input will update Attribute:  "		;read -p "" values
 	Config_DB Update
 	Config_DB Select
 	;;
