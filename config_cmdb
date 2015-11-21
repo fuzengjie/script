@@ -27,18 +27,18 @@ User_Info () {
 Config_DB () {
 	User_Info
 	Insert () {
-	$Con -e "use sadb; insert host (Hostname,Role,Groups,IP,date) values ('$Hostname' , '$Role' ,'$Groups', '$IP','$Date')"
+	$Con -e "use sadb; insert host (Hostname,Role,Groups,IP,date,Mac) values ('$values1' , '$values2' ,'$values3', '$values4','$values5',$values6)"
 	$Con -e "use sadb ; select * from host order by id desc limit 1"
 	}
 	
 	Update () {
-	$Con -e "use sadb; update host set ${values}='${values1}' where $values3='$values4'"
+	$Con -e "use sadb; update host set ${values2}='${values4}' where $values1='$values3'"
 	}
 	Delete () {
-	$Con -e "use sadb; delete host where ${values}='${values1}'"
+	$Con -e "use sadb; delete host where ${values1}='${values2}'"
 	}
 	Select () {
-	$Con  -e "use sadb; select $values3 from host where ${values}='${values1}'"
+	$Con  -e "use sadb; select $values2 from host where ${values1}='${values3}'"
 	}
 
 
@@ -62,25 +62,28 @@ esac
 Color
 case $1 in
 select)
-	Print_Yelow "please input select Content : " ; read -p  "" values1
-	Print_Yelow "please input  Attribute : "     ; read -p  "" values
-	Print_Yelow "please input Option : "		 ; read -p  "" values3  
+	Print_Yelow "please input select Content : " 		; read -p  "" values1
+	Print_Yelow "please input select Attribute : "      ; read -p  "" values3
+	Print_Yelow "please input Display Option : "		; read -p  "" values2
+	[ -z $values2 ] && values2="*" 
 	Config_DB Select
 	;;
 insert)
-	Print_Yelow "please input Hostname:  " ;read -p "" Hostname
-	Print_Yelow "please input Role: "      ;read -p ""  Role
-	Print_Yelow "please input Group: "     ;read -p ""  Groups
-	Print_Yelow "please input IP: "        ;read -p "" IP
-	Date=`date +'%F %X'`
+	Print_Yelow "please input Hostname:  " ;read -p ""  values1
+	Print_Yelow "please input Role: "      ;read -p ""  values2
+	Print_Yelow "please input Group: "     ;read -p ""  values3
+	Print_Yelow "please input IP: "        ;read -p ""  values4
+	Print_Yelow "please input Mac: "       ;read -p ""  values6
+	values5=`date +'%F %X'`
 	Config_DB Insert 
 	;;
 update)
-	Print_Yelow "please input will update Target :  "   	;read -p "" values3
-	Print_Yelow "please input will update Target_detail: "  ;read -p "" values4
-	Print_Yelow "please input will update Content:  "  		;read -p "" values1
-	Print_Yelow "please input will update Attribute:  "		;read -p "" values
+	Print_Yelow "please input will update Target :  "   	;read -p "" values1
+	Print_Yelow "please input will update Target_detail: "  ;read -p "" values3
+	Print_Yelow "please input will update Content:  "  		;read -p "" values4
+	Print_Yelow "please input will update Attribute:  "		;read -p "" values2
 	Config_DB Update
+	values2="Hostname,$values2"	
 	Config_DB Select
 	;;
 delete)
