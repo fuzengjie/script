@@ -162,9 +162,9 @@ EOF
 	source  /etc/profile
 cat >> /etc/bashrc <<EOF
 if [ \$USER == "root" ]; then
-        export PS1="[\e[31;24m\u\]\e[33;49m\]@\H \e[37;49m\w]\\$"
+        export PS1="[\e[31;24m\u\]\e[33;49m\]@\H \e[37;49m\w]\\\$"
 else
-        export PS1="[\[\e[32;49m\]\u\e[33;49m\]@\H \e[37;49m\w]\\$"
+        export PS1="[\[\e[32;49m\]\u\e[33;49m\]@\H \e[37;49m\w]\\\$"
 fi
 EOF
 	source /etc/bashrc

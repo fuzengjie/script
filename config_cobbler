@@ -1,0 +1,252 @@
+#!/bin/bash
+#Create by fuzj
+#Date 2015-11-22
+
+if [ $LOGNAME != root ]; then
+    echo "Please use the root account operation."
+    exit 1
+fi
+User_Info () {
+        User="admin"
+        Passwd="saadmin123"
+        Host="192.168.254.5"
+        Port="3306"
+        Con="mysql -u $User -p$Passwd -h $Host -P $Port"
+
+}
+Cmd="/usr/bin/cobbler system"
+Color () {
+        Print_Red () {
+        echo  -e  "\033[40;31m $1  \033[0m "
+        }
+        Print_Green () {
+        echo -e  "\033[40;32m $1 \033[0m "
+        }
+        Print_Yelow () {
+        echo -n -e  "\033[40;33m $1 \033[0m "
+        }
+	Print_Purple () {
+	echo -e  "\033[40;35m $1 \033[0m "
+	}
+}
+Check_Variable () {
+	Check_Result () {
+	if [ $? -ne 0 ]; then
+		Print_Red "No Result"
+	else
+		Print_Green "$Result"
+	fi
+	}
+	Check_Option () {
+	if [ -z $name ] || [ -z $mac ] || [ -z $ip ] ; then
+		Print_Red "Input Error... "
+	else
+		[ -z $subnet ] && subnet="255.255.255.0"
+		[ -z $gateway ] && gateway="192.168.254.1"
+		[ -z $interface ] && interface="eth1"
+		[ -z $dns ] && dns="192.168.254.254"
+	fi
+	}
+	Check_Status () {
+	if [ $? -eq 0 ]; then
+		Print_Green "Config is Success ..."
+		/usr/bin/cobbler sync  &>/dev/null
+	else
+		Print_Red " Config is False ..."
+		exit 1
+	fi
+	}
+}
+Use_help () {
+	Print_Purple "
++++++++++++++
+Usage Option
++++++++++++++
+  -S,--sync     Update from CMDB to Cobbler
+
+  -A,--auto     Silence Mode
+
+  -I,--interact Interaction Mode
+
+  -l,--list  	Display Cobbler system lists,  must choose a Mode used before
+
+  -d,--detail	Display single Cobbler system information, must choose a Mode used before
+
+  -a,--add   	Add a new Configure to Cobbler, must choose a Mode used before
+
+  -r,--remove	Delete a old Configure from Cobbler, must choose a Mode used before
+
+  -R,--rename 	Rename a exsit  system name in Cobbler, must choose a Mode used before
+
+  -e,--edit	Edit a  exsit  system in Cobbler, must choose a Mode used before
+
+  -h,--help	Get help information to Use this script
+
+==================
+Special illustrate
+==================
+  PS: In Silence Mode ,you can use this Parameter 
+   Option: -a,--add 
+   Parameter:	      --name=Hostname,--mac=mac address,--ip=ip address,--subnet=netmastk,--gateway=gateway address,--interface=interface name,--dns=dns server
+   
+   Option: -d,--detail
+   Parameter:         --name=Hostname
+   
+   Option: -r,--remove
+   Parameter:         --name=Hostname
+
+   Option: -R,--rename
+   Parameter:	      --oldname=oldhostname,--newname=newhostname
+
+   Option: -e,--edit
+   Parameter:         --name=Hostname,--mac=mac address,--ip=ip address,--subnet=netmastk,--gateway=gateway address,--interface=interface name,--dns=dns server
+				
+"	     	
+}
+Color
+Check_Variable
+User_Info
+case $1 in
+--sync|-S)
+	    list=`$Cmd list`
+	    cmdb=`$Con -e "use sadb;select Hostname from host;" | sed '/Hostname/d'`
+	    for rs in `echo $cmdb` ; do
+		echo $list | grep $rs &>/dev/null
+		if [ $? -ne 0 ] ; then
+		name=$rs
+		ip=`$Con -e "use sadb; select IP from host where Hostname='$rs';" | sed '/IP/d'`
+		mac=`$Con -e "use sadb; select Mac from host where Hostname='$rs';" | sed '/Mac/d'`
+		Check_Option
+		$Cmd add --name=$name --mac=$mac --ip-address=$ip --subnet=$subnet --gateway=$gateway --interface=$interface --static=1 --profile=CentOS-6.4-x86_64 --name-servers=$dns
+		Check_Status 
+		fi
+	    done
+	    ;;
+--auto|-A)
+	shift
+	case $1 in   	
+		--list|-l)
+		 Result=`$Cmd list`
+		 Check_Result
+		 ;;
+		--detail|-d)
+		 name=`echo $* | tr "=" " " | tr " " "\n"| egrep -w -v "detail|auto|d|A|name"`
+		 Result=`$Cmd report --name=$name`
+		 Check_Result
+		 ;;
+		--add|-a)
+		 name=`echo $* | tr "," "\n"| awk -F "=" '/name/ {print $2}'`
+		 mac=`echo $* | tr "," "\n"| awk -F "=" '/mac/ {print $2}'`
+		 ip=`echo $* | tr "," "\n"| awk -F "=" '/ip/ {print $2}'`
+		 subnet=`echo $* | tr "," "\n"| awk -F "=" '/subnet/ {print $2}'`
+		 gateway=`echo $* | tr "," "\n"| awk -F "=" '/gateway/ {print $2}'`
+		 interface=`echo $* | tr "," "\n"| awk -F "=" '/interface/ {print $2}'`
+		 dns=`echo $* | tr "," "\n"| awk -F "=" '/dns/ {print $2}'`
+		 Check_Option
+		 $Cmd add --name=$name --mac=$mac --ip-address=$ip --subnet=$subnet --gateway=$gateway --interface=$interface --static=1 --profile=CentOS-6.4-x86_64 --name-servers=$dns
+		 Check_Status
+		 ;;
+		--remove|-r)
+		 name=`echo $* |tr "=" " " | tr " " "\n"| egrep -w -v "remove|auto|r|A|name"`
+		 $Cmd remove --name=$name
+		 Check_Status
+		 ;;
+		--rename|-R)
+		 newname=`echo $* | tr "," "\n"| awk -F "=" '/newname/ {print $2}'`
+		 oldname=`echo $* | tr "," "\n"| awk -F "=" '/oldname/ {print $2}'`
+		 $Cmd rename --name=$oldname --newname=$newname
+		 Check_Status
+		 ;;
+		--edit|-e)
+		 name=`echo $* | tr "," "\n"| awk -F "=" '/name/ {print $2}'`
+		 mac=`echo $* | tr "," "\n"| awk -F "=" '/mac/ {print $2}'`
+                 ip=`echo $* | tr "," "\n"| awk -F "=" '/ip/ {print $2}'`
+                 subnet=`echo $* | tr "," "\n"| awk -F "=" '/subnet/ {print $2}'`
+                 gateway=`echo $* | tr "," "\n"| awk -F "=" '/gateway/ {print $2}'`
+                 interface=`echo $* | tr "," "\n"| awk -F "=" '/interface/ {print $2}'`
+                 dns=`echo $* | tr "," "\n"| awk -F "=" '/dns/ {print $2}'`
+		 [ -z $name ] && Print_Red "No choose Name" && exit 1
+		 [ -z $mac ] && O1="" || O1="--mac=$mac"
+		 [ -z $ip ] && O2="" || O2="--ip=$ip"
+		 [ -z $subnet ] && O3="" || O3="--subnet=$subnet" 
+		 [ -z $gateway ] && O4="" || O4="--gateway=$gateway"
+		 [ -z $interface ] && O5="" || O5="--interface=$interface"
+                 [ -z $dns ] && O6="" || O5="--interface=$dns"
+		 $Cmd edit --name=$name $O1 $O2 $O3 $O4 $O5
+		 Check_Status
+		 ;;
+		 *)
+		 Print_Red "No this Option"
+		 Use_help
+		 ;;
+	esac
+	;;
+--interact|-I)
+	shift
+	case $1 in
+
+                --list|-l)
+                 Result=`$Cmd list`
+                 Check_Result
+                 ;;
+
+		--detail|-d)		 
+		 Print_Yelow "please input the name: "		;read -p "" name
+		 Result=`$Cmd report --name=$name`
+                 Check_Result
+		 ;;
+
+		--add|-a)
+          	 Print_Yelow "please input the name: (Must) "   			;read -p "" name
+          	 Print_Yelow "please input the mac addr: (Must) " 			;read -p "" mac
+          	 Print_Yelow "please input the ip addr: (Must) "  	 		;read -p "" ip
+         	 Print_Yelow "please input the subnet: (detault:255.255.255.0) "        ;read -p "" subnet
+         	 Print_Yelow "please input the gateway: (Detault:192.168.254.1)"        ;read -p "" gateway
+          	 Print_Yelow "please input the interface: (Detault:eth1)"  		;read -p "" interface
+          	 Print_Yelow "please input the dns: (Detault:192.168.254.254)"		;read -p "" dns
+          	 Check_Option
+          	 $Cmd add --name=$name --mac=$mac --ip-address=$ip --subnet=$subnet --gateway=$gateway --interface=$interface --static=1 --profile=CentOS-6.4-x86_64 --name-servers=$dns
+		 Check_Status
+          	 ;;
+
+		--remove|-r)
+		 Print_Yelow "please input the name: "          ;read -p "" name
+	         $Cmd remove --name=$name
+                 Check_Status
+		 ;;
+
+		--rename|-R)
+		 Print_Yelow "please input the oldname: "         ;read -p "" oldname
+		 Print_Yelow "please input the newname: "         ;read -p "" newname
+		 $Cmd rename --name=$oldname --newname=$newname
+                 Check_Status
+		 ;;
+
+		--edit|-e)
+		 Print_Yelow "please input the name: (Must) "                           ;read -p "" name
+		 Print_Yelow "please input edit option: "
+		 Print_Yelow "For example: mac,ip,subnet,gateway,interface,dns "        ;read -p "" option
+		 list=`echo $option | awk -F"[ ,]" '{for (i=1;i<=$NF;i++) {print $i}}'`
+		 for m in `echo $list`; do
+		   i=1
+		   Print_Yelow "please input the new $m: " ;read -p "" a$i
+		   i++
+		done
+		 ;;
+
+		*)
+                 Print_Red "No this Option"
+                 Use_help
+                 ;;
+        esac
+	;;
+--help|-h)
+	 Use_help
+	 ;;
+*)
+	 Print_Red "No this Option"
+	 Use_help
+	 ;;
+
+esac
+
