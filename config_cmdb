@@ -60,7 +60,6 @@ esac
 
 
 Color
-Check_Variable
 case $1 in
 select)
 	Print_Yelow "please input select Content : " ; read -p  "" values1
