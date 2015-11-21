@@ -1,0 +1,94 @@
+#!/bin/bash
+
+#create by fuzj
+
+
+
+Color () {
+	Print_Red () { 
+	echo  -e  "\033[40;31m $1  \033[0m "
+	}
+	Print_Green () { 
+	echo -e  "\033[40;32m $1 \033[0m "
+	}
+	Print_Yelow () { 
+	echo -n -e  "\033[40;33m $1 \033[0m "
+	}
+}
+
+User_Info () {
+	User="admin"
+	Passwd="saadmin123"
+	Host="192.168.254.5"
+	Port="3306"
+	Con="mysql -u $User -p$Passwd -h $Host -P $Port"
+
+}
+Config_DB () {
+	User_Info
+	Insert () {
+	$Con -e "use sadb; insert host (Hostname,Role,Groups,IP,date) values ('$Hostname' , '$Role' ,'$Groups', '$IP','$Date')"
+	$Con -e "use sadb ; select * from host order by id desc limit 1"
+	}
+	
+	Update () {
+	$Con -e "use sadb; update host set ${values}='${values1}' where Hostname='$Hostname'"
+	}
+	Delete () {
+	$Con -e "use sadb; delete host where ${values}='${values1}'"
+	}
+	Select () {
+	$Con  -e "use sadb; select * from host where ${values}='${values1}'"
+	}
+
+
+case $1 in 
+Insert)
+	Insert ;;
+Update)
+	Update ;;
+Delete)
+	Delete ;;
+Select)
+	Select ;;
+*)
+	echo "No rule" ;;
+esac
+}
+
+
+
+
+Color
+Check_Variable
+case $1 in
+select)
+	Print_Yelow "please input select Content : " ; read -p  "" values1
+	Print_Yelow "please input  Attribute : "     ; read -p  ""  values
+	Config_DB Select
+	;;
+insert)
+	Print_Yelow "please input Hostname:  " ;read -p "" Hostname
+	Print_Yelow "please input Role: "      ;read -p ""  Role
+	Print_Yelow "please input Group: "     ;read -p ""  Groups
+	Print_Yelow "please input IP: "        ;read -p "" IP
+	Date=`date +'%F %X'`
+	Config_DB Insert 
+	;;
+update)
+	Print_Yelow "please input will update hostname:  " ;read -p "" Hostname
+	Print_Yelow "please input will update Content:  "  ;read -p "" values1
+	Print_Yelow "please input will update Attribute:  ";read -p "" values
+	Config_DB Update
+	Config_DB Select
+	;;
+delete)
+	Print_Yelow "please input will delete Content: "  ;read -p ""  values1
+	Print_Yelow "please input will delete Attribute: ";read -p "" values
+	Config_DB Delete
+	;;
+*)
+	Print_Red "No Option"
+	exit 1
+	;;
+esac
