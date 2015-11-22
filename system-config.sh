@@ -25,7 +25,7 @@ done
 #hostname 配置
 function hostname() {
 
-			read  -n 5 -p "please input your hostname:__" HOSTNAME_NEW
+			read  -t 5 -p "please input your hostname:__" HOSTNAME_NEW
 			if [ -z $HOSTNAME_NEW ] ; then
 				ip=`ifconfig eth1 | awk -F "[ :]+" '/inet addr/ {print $4}'`
 				HOSTNAME_NEW=`mysql -u guest -pguest -h 192.168.254.5 -P 3306 -e "select Hostname from sadb.host where IP='$ip'" | sed '/Hostname/d'`
