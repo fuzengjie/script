@@ -5,6 +5,13 @@
 . /etc/init.d/functions
 export LANG="en_US.UTF-8"
 
+function check() {
+	lock="/tmp/set_${FUNCNAME}.lock"
+if [ -e $lock ]; then
+	echo "the $FUNCNAME is alread config" 
+fi
+
+}
 function jishi(){
 tput sc
 count=11
@@ -24,7 +31,7 @@ done
 
 #hostname 配置
 function hostname() {
-
+			check
 			read  -t 5 -p "please input your hostname:__" HOSTNAME_NEW
 			if [ -z $HOSTNAME_NEW ] ; then
 				ip=`ifconfig eth1 | awk -F "[ :]+" '/inet addr/ {print $4}'`
@@ -34,9 +41,11 @@ function hostname() {
 			sed -i "s/HOSTNAME=${HOSTNAME_OLD}/HOSTNAME=${HOSTNAME_NEW}/g"  /etc/sysconfig/network
 			HOSTNAME=`grep -i  'HOSTNAME' /etc/sysconfig/network | cut -d "=" -f2`
 			action "your hostname is ${HOSTNAME} now！！" /bin/true
+			touch /tmp/set_hostname.lock
 }
 #selinux 配置
 function selinux() {
+		check
 		selinux_status=`sed "/^#"/d /etc/selinux/config  | awk -F"=" '$1 ~ /^SELINUX$/ {print $2}'`
 		if [ ${selinux_status} != "disabled" ];then
 			sed -i "s/SELINUX=${selinux_status}/SELINUX=disabled/g" /etc/selinux/config
@@ -44,36 +53,44 @@ function selinux() {
 			setenforce 0
 			action "selinux is `sed "/^#"/d /etc/selinux/config  | awk -F"=" '$1 ~ /^SELINUX$/ {print $2}'` " /bin/true
 		fi
+		touch /tmp/set_selinux.lock
 }
 
 #防火墙iptables配置
 function iptables() {
+		check
 		/etc/init.d/iptables restart &>/dev/null
 		/sbin/iptables -F
 		/etc/init.d/iptables save  &>/dev/null
 		/etc/init.d/iptables stop  &>/dev/null
 		chkconfig iptables off  &>/dev/null
 		action "iptables is stop" /bin/true
+		touch /tmp/set_iptables.lock
 }
 
 #服务启动配置
 function service() {
+			check
 		  for service in `chkconfig --list  | grep 3:on | awk  '{print $1}'`; do chkconfig $service off ; done
 		  for service in network rsyslog crond sshd;do chkconfig $service on;done
 		  [ $? -eq 0 ] && /action "the service is OK"  /bin/true 
 		  echo "the `chkconfig --list  | grep 3:on | awk  '{print $1}' | tr '\n' ','` is on now "
+		  touch /tmp/set_services.lock
 }
 
 #系统语言环境配置
 function language() {
+			check
 			language_old=`awk -F"=" '$1 ~ /^LANG$/ {print $2}' /etc/sysconfig/i18n`
 			language_new="en_US.UTF-8"
 			sed -i "s/LANG=${language_old}/LANG=${language_new}/g" /etc/sysconfig/i18n
 			[ $? -eq 0 ] && action "system language is `awk -F"=" '$1 ~ /^LANG$/ {print $2}' /etc/sysconfig/i18n` " /bin/true
+ 			touch /tmp/set_language.lock
  }
 
  #ntp时间同步配置
  function ntp() {
+ 			check
 			zone_old=`grep -w ZONE /etc/sysconfig/clock | awk -F"=" '{print $2}'`
 			zone_new='Asia/Shanghai'
 			sed -i "s#ZONE=${zone_old}#ZONE=${zone_new}#g" /etc/sysconfig/clock
@@ -83,11 +100,12 @@ function language() {
 			[ $? -eq 0 ] && action "the time update now `date +%F-%H:%M:%S` " /bin/true || action "the time update now `date +%F-%H:%M:%S`" /bin/true
  			echo '#time sync by fuzj at 2015-10-10'>>/etc/crontab
 			echo '*/10 * * * * /usr/sbin/ntpdate pool.ntp.org >/dev/null 2>&1'>>/etc/crontab
-			
+			touch /tmp/set_ntp.lock
  }
  
 #内核参数配置
 function kernal() {
+		check
 		cat >> /etc/sysctl.conf <<EOF
 net.ipv4.tcp_fin_timeout = 30
 net.ipv4.tcp_tw_reuse = 1
@@ -112,10 +130,11 @@ modprobe ip_conntrack
 echo "modprobe ip_conntrack" >> /etc/rc.local
 /sbin/sysctl -p &>>/dev/null 
 [ $? -eq 0 ] && action "the kernal is OK "  /bin/true || action "the kernal config false"
+touch /tmp/set_kernal.lock
 }
 
 function ulimit_config() {
-
+	check
 	sed -i '$d' /etc/security/limits.conf
 	sed -i '$d' /etc/security/limits.conf
 
@@ -137,10 +156,11 @@ work            soft    core            1000000
 work            hard    core            1000000
 EOF
 [ $? -eq 0 ] && action "the ulimit config 65535 is ok" /bin/true
+touch /tmp/set_ulimit.lock
 }
 #ssh及系统账户配置
 function ssh () {
-	
+	check
 	listen_ip=`ifconfig eth1 | sed -n '/inet addr:/p' | awk '{print $2}'| cut -d ":" -f2`
 	sed -i 's/#PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config
 	sed -i 's/#UseDNS yes/UseDNS no/g' /etc/ssh/sshd_config
@@ -164,28 +184,32 @@ EOF
 	echo "sshd:192.168.254.*:allow" >> /etc/hosts.allow
 	echo "sshd:ALL:deny" >>/etc/hosts.deny
 	source  /etc/profile
-cat >> /etc/bashrc <<EOF
-if [ \$USER == "root" ]; then
-        export PS1="[\e[31;24m\u\]\e[33;49m\]@\H \e[37;49m\w]\\\$"
+cat >> /etc/bashrc << EOF
+if [ \$USER == "root" ];then
+        PS1='\[\e[35m\]|\#|\[\e[m\][\[\e[31m\]\u\[\e[m\]@\[\e[33m\]\H \[\e[m\]\w]\\\$'
 else
-        export PS1="[\[\e[32;49m\]\u\e[33;49m\]@\H \e[37;49m\w]\\\$"
+        PS1='\[\e[35m\]|\#|\[\e[m\][\[\e[32m\]\u\[\e[m\]@\[\e[33m\]\H \[\e[m\]\w]\\\$'
 fi
 EOF
-	source /etc/bashrc
+
+source /etc/bashrc
+touch /tmp/set_ssh.lock
 }
 
 #下载必备常用软件
 function software() {
+			check
 			rm -fr /etc/yum.repos.d/*
             wget http://sa.beyond.com/script/local.repo -P /etc/yum.repos.d/
             yum clean all
-			yum install lrzsz wget elinks htop sysstat nc  -y &>/dev/null
+			yum install lrzsz wget elinks htop sysstat nc   -y &>/dev/null
 			[ $? -eq 0 ] && action "lrzsz wget elinks  htop sysstat nc install"  /bin/true|| action "lrzsz wget elinks  htop sysstat nc install" /bin/false
+			touch /tmp/set_software.lock
 }
 
 #禁用ipv6
 function ipv6_disable() {
-
+	check
 	echo "install ipv6 /bin/true" > /etc/modprobe.d/disable-ipv6.conf
 	/sbin/chkconfig ip6tables off
 	echo "NETWORKING_IPV6=no" >>/etc/sysconfig/network
@@ -194,6 +218,7 @@ IPV6_AUTOCONF=no" >> /etc/sysconfig/network-scripts/ifcfg-eth1
 	[ -e /etc/sysconfig/network-scripts/ifcfg-eth0 ] && echo "IPV6INIT=no 
 IPV6_AUTOCONF=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
 action "ipv6_disable is ok " /bin/true
+	touch /tmp/set_ipv6_disable.lock
 }
 
 #执行函数
