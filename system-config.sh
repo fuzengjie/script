@@ -164,12 +164,14 @@ function ssh () {
 	listen_ip=`ifconfig eth1 | sed -n '/inet addr:/p' | awk '{print $2}'| cut -d ":" -f2`
 	sed -i 's/#PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config
 	sed -i 's/#UseDNS yes/UseDNS no/g' /etc/ssh/sshd_config
-	sed -i "s/#ListenAddress 0.0.0.0/ListenAddress $listen_ip/g" /etc/ssh/sshd_config
+	sed -i "s/#ListenAddress 0.0.0.0/ListenAddress $listen_ip/g" /etc/ssh/sshd_config 
 	echo "AllowUsers fuzj" >> /etc/ssh/sshd_config
 	groupadd -g 80 work
 	useradd -g work -G work -u 80 work -s /sbin/nologin
 	useradd -g work fuzj 
  	echo "fuzj123" | passwd --stdin fuzj &> /dev/null
+	wget -P ~fuzj/.ssh/ http://sa.beyond.com/script/authorized_keys
+	chown -R fuzj.work ~fuzj/.ssh/ && chmod 600  ~fuzj/.ssh/authorized_keys && chmod 700 ~fuzj/.ssh
  	/etc/init.d/sshd restart &> /dev/null && action  "ssh is config ok ,please used fuzj login " /bin/true
  
  cat >> /etc/profile.d/history.sh <<EOF

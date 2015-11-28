@@ -5,6 +5,7 @@ Trapper () {
 }
 Color() {
         Print_Red () {
+	echo -e "\033[40;31m \033[5m"
         echo  -e  "\033[40;31m $1  \033[0m "
         }
         Print_Green () {
@@ -32,13 +33,13 @@ Check_Variable () {
         Group=`$Con -e " select Groups from sadb.user where Name='$User' and Status='enable'" | sed "1d"`
 	if [[ -z $Group ]]
 	    then
-		Print_Red "Your Count is disable"
-		break
+		error="Your Count is disable"
+		sleep 2; break
 	else
-        Host_List=`$Con -e "select IP,Hostname from sadb.host where Groups='$Group'" | sed "1d"`
-	echo "Host_List" | grep -w  "$rs" >/dev/null
-	[ $? -ne 0 ] && Print_Red "You do not have permission to login"
-	break
+        	Host_List=`$Con -e "select IP,Hostname from sadb.host where Groups='$Group'" | sed "1d"`
+		echo "$Host_List" | grep -w  "$rs" >/dev/null
+		[ $? -ne 0 ] && error="You do not have permission to login" 
+		sleep 2; break
 	fi
 	}
 }
@@ -48,9 +49,8 @@ Print_Green "
 *   User:$User					*	
 *   Date:$Date		*
 *************************************************
-
 "
-
+Print_Red "$error"
 cat  << menue
          `Print_Purple "
         1) L, l      Select Host List
@@ -114,6 +114,7 @@ do
                         Commond
                         ;;
                 H|h)
+			unset error
                         break
                         ;;
                 Q|q)
@@ -133,5 +134,6 @@ done
 }
 while true 
 do
+clear
 Obey
 done
