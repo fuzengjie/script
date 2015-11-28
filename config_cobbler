@@ -8,8 +8,8 @@ if [ $LOGNAME != root ]; then
     exit 1
 fi
 User_Info () {
-        User="admin"
-        Passwd="saadmin123"
+        User="guest"
+        Passwd="guest"
         Host="192.168.254.5"
         Port="3306"
         Con="mysql -u $User -p$Passwd -h $Host -P $Port"
