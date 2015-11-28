@@ -27,7 +27,7 @@ User_Info () {
 Config_DB () {
 	User_Info
 	Insert () {
-	$Con -e "use sadb; insert host (Hostname,Role,Groups,IP,date,Mac) values ('$values1' , '$values2' ,'$values3', '$values4','$values5',$values6)"
+	$Con -e "use sadb; insert host (Hostname,Role,Groups,IP,date,Mac) values ('$values1' , '$values2' ,'$values3', '$values4','$values5','$values6')"
 	$Con -e "use sadb ; select * from host order by id desc limit 1"
 	}
 	
