@@ -38,7 +38,10 @@ Check_Variable () {
 	else
         	Host_List=`$Con -e "select IP,Hostname from sadb.host where Groups='$Group'" | sed "1d"`
 		echo "$Host_List" | grep -w  "$rs" >/dev/null
-		[ $? -gt 0 ] && error="You do not have permission to login" && sleep 2 && break
+		[ $? -gt 0 ] && { error="You do not have permission to login" 
+		sleep 2
+		break
+		}
 	fi
 	}
 }
