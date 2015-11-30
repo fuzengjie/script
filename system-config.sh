@@ -215,7 +215,7 @@ EOF
 	source  /etc/profile
 cat >> /etc/bashrc << EOF
 if [ \$USER == "root" ];then
-        PS1='\[\e[35m\]|\#|\[\e[m\][\[\e[31m\]\u\[\e[m\]@\[\e[33m\]\H \[\e[m\]\w]\\\$'
+        PS1='\[\e[35m\]|\#|\[\e[m\][\[\e[31m\]\u\[\e[m\]@\[\e[33m\]\h \[\e[m\]\w]\\\$'
 else
         PS1='\[\e[35m\]|\#|\[\e[m\][\[\e[32m\]\u\[\e[m\]@\[\e[33m\]\H \[\e[m\]\w]\\\$'
 fi
