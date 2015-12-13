@@ -15,14 +15,14 @@ $tmp_name=$_FILES['file']["tmp_name"];//上传文件的临时存放路径
 $url=("http://sa.beyond.com/".$name);//访问的URL
 $suffix=substr(strrchr($name,"."),1);
 $prefix=substr($name , 0 , 6);
-        if ($suffix == 'gz' || $suffix == 'bz2') {
+        if ($suffix == 'gz' || $suffix == 'bz2' || $suffix == 'zip' || $suffix == 'tgz') {
                 $DST_DIR=$SOURCE_DIR;
         }
          elseif ($suffix == 'rpm' && $prefix == 'beyond') {
-                $DST_DIR=($YUM_DIR."/beyond/Package");
+                $DST_DIR=($YUM_DIR."/beyond/Packages/");
                 }
          elseif ($suffix == 'rpm' && $prefix != 'beyond') {
-                $DST_DIR=($YUM_DIR."/extend/Package");
+                $DST_DIR=($YUM_DIR."/extend/Packages/");
                 }
         elseif ($suffix == 'sh' || $suffix == 'py' || $suffix == 'php') {
                 $DST_DIR=$SCRIPT_DIR;
