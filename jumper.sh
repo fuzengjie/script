@@ -38,8 +38,10 @@ Check_Variable () {
 	else
         	Host_List=`$Con -e "select IP,Hostname from sadb.host where Groups='$Group'" | sed "1d"`
 		echo "$Host_List" | grep -w  "$rs" >/dev/null
-		[ $? -ne 0 ] && error="You do not have permission to login" 
-		sleep 2; break
+		[ $? -gt 0 ] && { error="You do not have permission to login" 
+		sleep 2
+		break
+		}
 	fi
 	}
 }
@@ -101,7 +103,7 @@ Obey() {
 	Menue
 while true
 do
- #       Trapper
+        Trapper
         Print_Yellow  "IP or Option:" ; read -p "" rs
         case $rs in
                 L|l)

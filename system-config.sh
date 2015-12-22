@@ -31,7 +31,10 @@ done
 
 #hostname 配置
 function hostname() {
-			check
+			[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 			read  -t 5 -p "please input your hostname:__" HOSTNAME_NEW
 			if [ -z $HOSTNAME_NEW ] ; then
 				ip=`ifconfig eth1 | awk -F "[ :]+" '/inet addr/ {print $4}'`
@@ -45,7 +48,10 @@ function hostname() {
 }
 #selinux 配置
 function selinux() {
-		check
+		[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 		selinux_status=`sed "/^#"/d /etc/selinux/config  | awk -F"=" '$1 ~ /^SELINUX$/ {print $2}'`
 		if [ ${selinux_status} != "disabled" ];then
 			sed -i "s/SELINUX=${selinux_status}/SELINUX=disabled/g" /etc/selinux/config
@@ -58,7 +64,10 @@ function selinux() {
 
 #防火墙iptables配置
 function iptables() {
-		check
+		[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 		/etc/init.d/iptables restart &>/dev/null
 		/sbin/iptables -F
 		/etc/init.d/iptables save  &>/dev/null
@@ -70,7 +79,10 @@ function iptables() {
 
 #服务启动配置
 function service() {
-			check
+		[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 		  for service in `chkconfig --list  | grep 3:on | awk  '{print $1}'`; do chkconfig $service off ; done
 		  for service in network rsyslog crond sshd;do chkconfig $service on;done
 		  [ $? -eq 0 ] && /action "the service is OK"  /bin/true 
@@ -80,7 +92,10 @@ function service() {
 
 #系统语言环境配置
 function language() {
-			check
+		[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 			language_old=`awk -F"=" '$1 ~ /^LANG$/ {print $2}' /etc/sysconfig/i18n`
 			language_new="en_US.UTF-8"
 			sed -i "s/LANG=${language_old}/LANG=${language_new}/g" /etc/sysconfig/i18n
@@ -90,7 +105,10 @@ function language() {
 
  #ntp时间同步配置
  function ntp() {
- 			check
+ 			[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 			zone_old=`grep -w ZONE /etc/sysconfig/clock | awk -F"=" '{print $2}'`
 			zone_new='Asia/Shanghai'
 			sed -i "s#ZONE=${zone_old}#ZONE=${zone_new}#g" /etc/sysconfig/clock
@@ -105,7 +123,10 @@ function language() {
  
 #内核参数配置
 function kernal() {
-		check
+			[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 		cat >> /etc/sysctl.conf <<EOF
 net.ipv4.tcp_fin_timeout = 30
 net.ipv4.tcp_tw_reuse = 1
@@ -134,7 +155,10 @@ touch /tmp/set_kernal.lock
 }
 
 function ulimit_config() {
-	check
+	[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 	sed -i '$d' /etc/security/limits.conf
 	sed -i '$d' /etc/security/limits.conf
 
@@ -160,7 +184,10 @@ touch /tmp/set_ulimit.lock
 }
 #ssh及系统账户配置
 function ssh () {
-	check
+	[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 	listen_ip=`ifconfig eth1 | sed -n '/inet addr:/p' | awk '{print $2}'| cut -d ":" -f2`
 	sed -i 's/#PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config
 	sed -i 's/#UseDNS yes/UseDNS no/g' /etc/ssh/sshd_config
@@ -188,7 +215,7 @@ EOF
 	source  /etc/profile
 cat >> /etc/bashrc << EOF
 if [ \$USER == "root" ];then
-        PS1='\[\e[35m\]|\#|\[\e[m\][\[\e[31m\]\u\[\e[m\]@\[\e[33m\]\H \[\e[m\]\w]\\\$'
+        PS1='\[\e[35m\]|\#|\[\e[m\][\[\e[31m\]\u\[\e[m\]@\[\e[33m\]\h \[\e[m\]\w]\\\$'
 else
         PS1='\[\e[35m\]|\#|\[\e[m\][\[\e[32m\]\u\[\e[m\]@\[\e[33m\]\H \[\e[m\]\w]\\\$'
 fi
@@ -200,7 +227,10 @@ touch /tmp/set_ssh.lock
 
 #下载必备常用软件
 function software() {
-			check
+	[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 			rm -fr /etc/yum.repos.d/*
             wget --http-user=sa  --http-password=sa123  http://sa.beyond.com/script/local.repo -P /etc/yum.repos.d/
             yum clean all
@@ -211,7 +241,10 @@ function software() {
 
 #禁用ipv6
 function ipv6_disable() {
-	check
+	[ -e /tmp/set_${FUNCNAME}.lock ] && {
+				echo "the $FUNCNAME is already config"
+				return
+			}
 	echo "install ipv6 /bin/true" > /etc/modprobe.d/disable-ipv6.conf
 	/sbin/chkconfig ip6tables off
 	echo "NETWORKING_IPV6=no" >>/etc/sysconfig/network
