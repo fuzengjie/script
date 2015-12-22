@@ -35,7 +35,7 @@ function hostname() {
 			read  -t 5 -p "please input your hostname:__" HOSTNAME_NEW
 			if [ -z $HOSTNAME_NEW ] ; then
 				ip=`ifconfig eth1 | awk -F "[ :]+" '/inet addr/ {print $4}'`
-				HOSTNAME_NEW=`mysql -u guest -pguest -h 192.168.254.5 -P 3306 -e "select Hostname from sadb.host where IP='$ip'" | sed '/Hostname/d'`
+				HOSTNAME_NEW=`mysql -u guest -pguest -h cmdb.sa.beyond.com -P 3306 -e "select Hostname from sadb.host where IP='$ip'" | sed '/Hostname/d'`
 			fi
 			HOSTNAME_OLD=`grep -i  'HOSTNAME' /etc/sysconfig/network | cut -d "=" -f2`
 			sed -i "s/HOSTNAME=${HOSTNAME_OLD}/HOSTNAME=${HOSTNAME_NEW}/g"  /etc/sysconfig/network
@@ -99,7 +99,7 @@ function language() {
 			/usr/sbin/ntpdate pool.ntp.org &>/dev/null
 			[ $? -eq 0 ] && action "the time update now `date +%F-%H:%M:%S` " /bin/true || action "the time update now `date +%F-%H:%M:%S`" /bin/true
  			echo '#time sync by fuzj at 2015-10-10'>>/etc/crontab
-			echo '*/10 * * * * /usr/sbin/ntpdate pool.ntp.org >/dev/null 2>&1'>>/etc/crontab
+			echo '*/10 * * * * /usr/sbin/ntpdate ntp.sa.beyond.com >/dev/null 2>&1'>>/etc/crontab
 			touch /tmp/set_ntp.lock
  }
  
@@ -170,7 +170,7 @@ function ssh () {
 	useradd -g work -G work -u 80 work -s /sbin/nologin
 	useradd -g work fuzj 
  	echo "fuzj123" | passwd --stdin fuzj &> /dev/null
-	wget -P ~fuzj/.ssh/ http://sa.beyond.com/script/authorized_keys
+	wget -P ~fuzj/.ssh/ http://sa.beyond.com/script/authorized_keys --http-user=sa  --http-password=sa123
 	chown -R fuzj.work ~fuzj/.ssh/ && chmod 600  ~fuzj/.ssh/authorized_keys && chmod 700 ~fuzj/.ssh
  	/etc/init.d/sshd restart &> /dev/null && action  "ssh is config ok ,please used fuzj login " /bin/true
  
@@ -202,7 +202,7 @@ touch /tmp/set_ssh.lock
 function software() {
 			check
 			rm -fr /etc/yum.repos.d/*
-            wget http://sa.beyond.com/script/local.repo -P /etc/yum.repos.d/
+            wget --http-user=sa  --http-password=sa123  http://sa.beyond.com/script/local.repo -P /etc/yum.repos.d/
             yum clean all
 			yum install lrzsz wget elinks htop sysstat nc   -y &>/dev/null
 			[ $? -eq 0 ] && action "lrzsz wget elinks  htop sysstat nc install"  /bin/true|| action "lrzsz wget elinks  htop sysstat nc install" /bin/false
