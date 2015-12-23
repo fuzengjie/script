@@ -38,7 +38,7 @@ function hostname() {
 			read  -t 5 -p "please input your hostname:__" HOSTNAME_NEW
 			if [ -z $HOSTNAME_NEW ] ; then
 				ip=`ifconfig eth1 | awk -F "[ :]+" '/inet addr/ {print $4}'`
-				HOSTNAME_NEW=`mysql -u guest -pguest -h cmdb.sa.beyond.com -P 3306 -e "select Hostname from sadb.host where IP='$ip'" | sed '/Hostname/d'`
+				HOSTNAME_NEW=`mysql -u guest -pguest -h db.sa.beyond.com -P 3306 -e "select Hostname from sadb.host where IP='$ip'" | sed '/Hostname/d'`
 			fi
 			HOSTNAME_OLD=`grep -i  'HOSTNAME' /etc/sysconfig/network | cut -d "=" -f2`
 			sed -i "s/HOSTNAME=${HOSTNAME_OLD}/HOSTNAME=${HOSTNAME_NEW}/g"  /etc/sysconfig/network
