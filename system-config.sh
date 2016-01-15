@@ -256,6 +256,16 @@ action "ipv6_disable is ok " /bin/true
 	touch /tmp/set_ipv6_disable.lock
 }
 
+function post_dns() {
+	        [ -e /tmp/set_${FUNCNAME}.lock ] && {
+                                echo "the $FUNCNAME is already config"
+                                return
+                        }
+		ip=`ifconfig eth1 | awk -F "[ :]+" '/inet addr/ {print $4}'`
+		HOSTNAME=`grep -i  'HOSTNAME' /etc/sysconfig/network | cut -d "=" -f2`
+		curl -s -u sa:sa123 -X POST -d "domain=$HOSTNAME&ip=$ip"
+		touch /tmp/set_post_dns.lock
+}
 #执行函数
 function obey() {
 hostname
@@ -269,6 +279,7 @@ service
 ssh
 ipv6_disable
 ulimit_config
+post_dns
 }
 if [[ $LOGNAME != root ]]; then
 	echo -e "\033[;31m you are not administrator !!! \033[0m"
