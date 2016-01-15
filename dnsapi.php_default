@@ -18,10 +18,9 @@ if ($method == "POST") {
 		exit;
 	}
 
-	$str=($domain." ".$ttl." IN ".$type." ".$ip."\r\n");
-	$content = fopen($file,"a+");
-	fwrite($content,$str);
-	fclose($content);
+	$str=($domain.". ".$ttl." IN ".$type." ".$ip."\n");
+	$content = file_get_contents($file);
+	file_put_contents($file,$str.$content);
 	}
 elseif ($method == "DELETE") {
 	$content=file($file);
@@ -52,6 +51,5 @@ elseif ($method == "SELECT"){
         }
 
 }
-
 ?>
 
