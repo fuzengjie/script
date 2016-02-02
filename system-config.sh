@@ -264,7 +264,7 @@ function post_dns() {
                         }
 		ip=`ifconfig eth1 | awk -F "[ :]+" '/inet addr/ {print $4}'`
 		HOSTNAME=`grep -i  'HOSTNAME' /etc/sysconfig/network | cut -d "=" -f2`
-		curl -s -u sa:sa123 -X POST -d "domain=$HOSTNAME&ip=$ip"
+		curl -s -u sa:sa123 -X POST -d "domain=$HOSTNAME&ip=$ip" http://dnsapi.sa.beyond.com/dnsapi.php
 		touch /tmp/set_post_dns.lock
 }
 #执行函数
