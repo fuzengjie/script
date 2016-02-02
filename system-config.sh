@@ -231,12 +231,12 @@ function software() {
 				echo "the $FUNCNAME is already config"
 				return
 			}
-			rm -fr /etc/yum.repos.d/*
+	    rm -fr /etc/yum.repos.d/*
             wget --http-user=sa  --http-password=sa123  http://sa.beyond.com/script/local.repo -P /etc/yum.repos.d/
             yum clean all
-			yum install lrzsz wget elinks htop sysstat nc   -y &>/dev/null
-			[ $? -eq 0 ] && action "lrzsz wget elinks  htop sysstat nc install"  /bin/true|| action "lrzsz wget elinks  htop sysstat nc install" /bin/false
-			touch /tmp/set_software.lock
+	    yum install lrzsz wget elinks jq htop sysstat nc   -y &>/dev/null
+	   [ $? -eq 0 ] && action "lrzsz wget elinks  htop sysstat nc install"  /bin/true|| action "lrzsz wget elinks  htop sysstat nc install" /bin/false
+	   touch /tmp/set_software.lock
 }
 
 #禁用ipv6
