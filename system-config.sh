@@ -44,7 +44,7 @@ function hostname() {
 			sed -i "s/HOSTNAME=${HOSTNAME_OLD}/HOSTNAME=${HOSTNAME_NEW}/g"  /etc/sysconfig/network
 			HOSTNAME=`grep -i  'HOSTNAME' /etc/sysconfig/network | cut -d "=" -f2`
 			action "your hostname is ${HOSTNAME} now！！" /bin/true
-            hostname $HOSTNAME
+            		/bin/hostname $HOSTNAME
 			touch /tmp/set_hostname.lock
 }
 #selinux 配置
