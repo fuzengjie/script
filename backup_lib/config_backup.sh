@@ -17,7 +17,7 @@ PASSWORD_FILE=/data/script/backup_lib/passwd\n
 LOCAL_FILE=$Path\n
 DATE=\`date +%Y%m%d%H%M\`\n
 REMOTE_NAME=\`echo \$LOCAL_FILE | awk -F \"/\" '{print \$NF}'\`\n
-LOG=./backup.log\n
+LOG=/data/logs/backup.log\n
 /usr/bin/rsync -avzP --bwlimit=1000 \${LOCAL_FILE} backup@\${BACKUP_SERVER}::\$MODULE/\$HOSTNAME/\${REMOTE_NAME}_\$DATE/ --password-file=\${PASSWORD_FILE} >> \$LOG\n
 "
 
