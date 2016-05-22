@@ -35,8 +35,13 @@ Check_Variable () {
 	    then
 		error="Your Count is disable"
 		sleep 2; break
-	else
-        	Host_List=`$Con -e "select IP,Hostname from sadb.host where Groups='$Group'" | sed "1d"`
+	else    
+            if [[ $USER == "fuzj" ]]
+                then
+                    Host_List=`$Con -e "select IP,Hostname from sadb.host" | sed "1d"`
+            else
+        	        Host_List=`$Con -e "select IP,Hostname from sadb.host where Groups='$Group'" | sed "1d"`
+            fi
 		echo "$Host_List" | grep -w  "$rs" >/dev/null
 		[ $? -gt 0 ] && { error="You do not have permission to login" 
 		sleep 2
