@@ -1,12 +1,13 @@
 #/bin/bash
+
 #Step 1. 判断系统有2块以上磁盘同则开始循环
-DISK_COUNTS=`fdisk -l|grep ^Disk|grep dev|wc -l`
-for ((i=2;i<=$DISK_COUNTS;i++))
+DISK_COUNTS=`fdisk -l|grep ^Disk|grep dev|grep -v "sda"|wc -l`
+for ((i=1;i<=$DISK_COUNTS;i++))
    do
 	 DISK_LISTS=`fdisk -l|grep ^Disk|grep dev |cut -c6-13`
 	 echo -ne "\033[30;32m \n\nThese disks are available for use:\n$DISK_LISTS\n\n \033[0m"
 	#Step 2.交互式确认是否要对第二块磁盘处理，输入不合法则自动要求重新输入
-	 Disk=`echo $DISK_LISTS |tr " " "\n"| sed -n ${i}p`
+	 Disk=`echo $DISK_LISTS| grep -v "sda" |tr " " "\n"| sed -n ${i}p`
 	 read  -t 3 -p " Do you want to partion $Disk and mount it ? [Y/y/N/n]  " ANSWER
 	 [ -z $ANSWER ]  && ANSWER="y"
 	 case $ANSWER in
