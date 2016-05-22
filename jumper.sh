@@ -36,7 +36,7 @@ Check_Variable () {
 		error="Your Count is disable"
 		sleep 2; break
 	else    
-            if [[ $USER == "fuzj" ]]
+            if [[ $User == "fuzj" ]]
                 then
                     Host_List=`$Con -e "select IP,Hostname from sadb.host" | sed "1d"`
             else
@@ -82,7 +82,12 @@ Jumper() {
 	DB_Info
 	List () {
 		Group=`$Con -e " select Groups from sadb.user where Name='$User'" | sed "1d"`
+		if [[ $User == 'fuzj' ]]
+		    then
+			Host_List=`$Con -e "select IP,Hostname from sadb.host"|sed "1d"`
+		else
 		Host_List=`$Con -e "select IP,Hostname from sadb.host where Groups='$Group'" | sed "1d"`
+		fi
 		Result="$Host_List"
 		Display_Result
 	}

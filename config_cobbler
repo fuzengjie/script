@@ -45,7 +45,7 @@ Check_Variable () {
 		[ -z $subnet ] && subnet="255.255.255.0"
 		[ -z $gateway ] && gateway="192.168.254.1"
 		[ -z $interface ] && interface="eth1"
-		[ -z $dns ] && dns="192.168.254.254"
+		[ -z $dns ] && dns="192.168.254.4"
 	fi
 	}
 	Check_Status () {
@@ -204,7 +204,7 @@ case $1 in
          	 Print_Yelow "please input the subnet: (detault:255.255.255.0) "        ;read -p "" subnet
          	 Print_Yelow "please input the gateway: (Detault:192.168.254.1)"        ;read -p "" gateway
           	 Print_Yelow "please input the interface: (Detault:eth1)"  		;read -p "" interface
-          	 Print_Yelow "please input the dns: (Detault:192.168.254.254)"		;read -p "" dns
+          	 Print_Yelow "please input the dns: (Detault:192.168.254.4)"		;read -p "" dns
           	 Check_Option
           	 $Cmd add --name=$name --mac=$mac --ip-address=$ip --subnet=$subnet --gateway=$gateway --interface=$interface --static=1 --profile=CentOS-6.4-x86_64 --name-servers=$dns
 		 Check_Status
